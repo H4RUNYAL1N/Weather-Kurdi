@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Roj Weather – Kurdish Cities Weather & Exchange Rates</title>
+<style>
+  body { font-family: Arial, sans-serif; margin:0; background:#111; color:#fff; }
+  header { background:#f5a623; text-align:center; padding:20px; }
+  h1 { margin:0; }
+  #cities, #exchange { display:flex; flex-wrap:wrap; justify-content:center; padding:20px; }
+  .card { background:#222; margin:10px; padding:15px; border-radius:10px; width:220px; box-shadow:0 0 10px #000; }
+  .city-name { font-weight:bold; font-size:18px; margin-bottom:10px; }
+  .temp { font-size:16px; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Roj Weather – Kurdish Cities Weather & Exchange Rates</h1>
+  <select id="lang">
+    <option value="ku">Kurdî (Kurmanji)</option>
+    <option value="tr">Türkçe</option>
+    <option value="en">English</option>
+    <option value="de">Deutsch</option>
+  </select>
+</header>
+
+<section id="cities"></section>
+<section id="exchange"></section>
+
+<script>
+// 🔹 Tüm şehirler, TR’deki Kürt şehirleri Kürtçe
+const cities = [
+  { name: "Amed", lat: 37.91, lon: 40.24 },
+  { name: "Wan", lat: 38.49, lon: 43.38 },
+  { name: "Mêrdîn", lat: 37.32, lon: 40.73 },
+  { name: "Riha", lat: 37.16, lon: 38.79 },
+  { name: "Batman", lat: 37.88, lon: 41.13 },
+  { name: "Sîrêt", lat: 37.95, lon: 41.94 },
+  { name: "Şirnex", lat: 37.51, lon: 42.45 },
+  { name: "Qeladizê", lat: 37.57, lon: 43.74 },
+  { name: "Agirî", lat: 39.72, lon: 43.05 },
+  { name: "Îğdir", lat: 39.91, lon: 44.04 },
+  { name: "Mûş", lat: 38.75, lon: 41.49 },
+  { name: "Bedlîs", lat: 38.38, lon: 42.11 },
+  { name: "Çolî", lat: 38.88, lon: 40.49 },
+  { name: "Dersim", lat: 39.11, lon: 39.55 },
+  { name: "Kars", lat: 40.60, lon: 43.08 },
+  { name: "Erzurum", lat: 39.90, lon: 41.27 },
+  { name: "Elazîz", lat: 38.68, lon: 39.22 },
+  { name: "Adîyaman", lat: 37.76, lon: 38.27 },
+  { name: "Hewlêr", lat: 36.19, lon: 44.01 }, // Erbil
+  { name: "Silêmanî", lat: 35.56, lon: 45.44 },
+  { name: "Dihok", lat: 36.87, lon: 42.99 },
+  { name: "Zaxo", lat: 37.15, lon: 42.68 },
+  { name: "Halepçe", lat: 35.19, lon: 45.43 },
+  { name: "Kerkûk", lat: 35.47, lon: 44.39 },
+  { name: "Kalar", lat: 35.57, lon: 45.45 },
+  { name: "Ranya", lat: 35.51, lon: 45.34 },
+  { name: "Çemçemal", lat: 36.75, lon: 43.10 },
+  { name: "Amedi", lat: 36.87, lon: 43.88 },
+  { name: "Mahabad", lat: 36.77, lon: 45.72 },
+  { name: "Sine", lat: 35.21, lon: 47.00 }, // Sanandaj
+  { name: "Kirmanşah", lat: 34.31, lon: 47.06 },
+  { name: "Bukan", lat: 36.53, lon: 46.21 },
+  { name: "Saqqez", lat: 36.25, lon: 46.27 },
+  { name: "Marivan", lat: 35.53, lon: 46.18 },
+  { name: "Paveh", lat: 34.99, lon: 46.36 },
+  { name: "Ilam", lat: 33.63, lon: 46.42 },
+  { name: "Sardasht", lat: 36.16, lon: 45.49 },
+  { name: "Oshnavieh", lat: 37.04, lon: 45.03 },
+  { name: "Qamishlo", lat: 37.03, lon: 41.23 },
+  { name: "Kobani", lat: 36.89, lon: 38.57 },
+  { name: "Afrin", lat: 36.90, lon: 36.57 },
+  { name: "Amûdê", lat: 37.05, lon: 38.77 },
+  { name: "Derik", lat: 37.02, lon: 41.27 },
+  { name: "Serêkaniyê", lat: 37.08, lon: 38.74 },
+  { name: "Aparan", lat: 40.56, lon: 44.42 },
+  { name: "Talın", lat: 39.74, lon: 46.58 },
+  { name: "Laçın", lat: 39.56, lon: 46.43 },
+  { name: "Kelbecer", lat: 40.18, lon: 46.40 },
+  { name: "Kubadlı", lat: 39.45, lon: 46.42 },
+  { name: "Berlin", lat: 52.52, lon: 13.41 },
+  { name: "Köln", lat: 50.94, lon: 6.95 },
+  { name: "Hamburg", lat: 53.55, lon: 9.99 },
+  { name: "Essen", lat: 51.45, lon: 7.01 },
+  { name: "Düsseldorf", lat: 51.23, lon: 6.78 },
+  { name: "Paris", lat: 48.85, lon: 2.35 },
+  { name: "Marseille", lat: 43.30, lon: 5.37 },
+  { name: "Stockholm", lat: 59.33, lon: 18.07 },
+  { name: "Göteborg", lat: 57.71, lon: 11.97 },
+  { name: "Rotterdam", lat: 51.92, lon: 4.48 },
+  { name: "Amsterdam", lat: 52.37, lon: 4.90 },
+  { name: "London", lat: 51.50, lon: -0.12 },
+  { name: "Moskova", lat: 55.75, lon: 37.61 },
+  { name: "Krasnodar", lat: 45.03, lon: 38.98 }
+];
+
+// 🔹 Döviz API
+const exchangeAPI = "https://api.exchangerate.host/latest?base=TRY&symbols=USD,EUR,GBP";
+
+// 🔹 Hava durumu çekme
+async function fetchWeather(city){
+  try {
+    const today = new Date().toISOString().split('T')[0];
+    const tomorrow = new Date(Date.now()+24*60*60*1000).toISOString().split('T')[0];
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${city.lat}&longitude=${city.lon}&daily=temperature_2m_mean,apparent_temperature_mean&current_weather=true&timezone=auto&start_date=${today}&end_date=${tomorrow}`;
+    const res = await fetch(url);
+    const data = await res.json();
+    return data.current_weather || { temperature: "N/A", windspeed: "N/A" };
+  } catch(e){
+    console.error("Weather fetch error:", e);
+    return { temperature: "N/A", windspeed: "N/A" };
+  }
+}
+
+// 🔹 Döviz çek
+async function fetchExchange(){
+  try {
+    const res = await fetch(exchangeAPI);
+    const data = await res.json();
+    return data.rates;
+  } catch(e){
+    console.error("Exchange fetch error:", e);
+    return {};
+  }
+}
+
+// 🔹 Şehir kartları
+async function showCities(){
+  const container = document.getElementById("cities");
+  for(const city of cities){
+    const weather = await fetchWeather(city);
+    const card = document.createElement("div");
+    card.className = "card";
+    card.innerHTML = `
+      <div class="city-name">${city.name}</div>
+      <div class="temp">Temperature: ${weather.temperature}°C</div>
+      <div class="temp">Wind Speed: ${weather.windspeed} m/s</div>
+    `;
+    container.appendChild(card);
+  }
+}
+
+// 🔹 Döviz kartı
+async function showExchange(){
+  const container = document.getElementById("exchange");
+  const rates = await fetchExchange();
+  const card = document.createElement("div");
+  card.className = "card";
+  card.innerHTML = `
+    <div class="city-name">Exchange Rates (TRY base)</div>
+    <div class="temp">USD: ${rates.USD}</div>
+    <div class="temp">EUR: ${rates.EUR}</div>
+    <div class="temp">GBP: ${rates.GBP}</div>
+  `;
+  container.appendChild(card);
+}
+
+// Başlat
+showCities();
+showExchange();
+</script>
+</body>
+</html>
